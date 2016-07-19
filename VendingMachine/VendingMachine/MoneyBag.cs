@@ -13,7 +13,24 @@ namespace Covarity
         public Dictionary<Denomination, int> DenominiationCounts { get; }
         public MoneyBag(Dictionary<Denomination, int> money)
         {
-            DenominiationCounts = money ?? new Dictionary<Denomination, int>();
+            DenominiationCounts = new Dictionary<Denomination, int>();
+            foreach (Denomination denom in Enum.GetValues(typeof(Denomination)))
+            {
+                DenominiationCounts.Add(denom, (money != null && money.ContainsKey(denom)) ? money[denom] : 0);
+            }           
+        }
+
+        public int Amount
+        {
+            get
+            {
+                var sum = 0;
+                foreach (var denominization in DenominiationCounts)
+                {
+                    sum += (denominization.Value * (int)denominization.Key);
+                }
+                return sum;
+            }
         }
     }
 }
