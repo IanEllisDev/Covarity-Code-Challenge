@@ -8,10 +8,33 @@ namespace VendingMachineTests
     [TestClass]
     public class VendingMachineTests
     {
+        VendingMachine machine;
+        [TestInitialize]
+        public void Init()
+        {
+            machine = null;
+        }
+        
+        private void DefaultInitialization()
+        {
+            var ones = 5;
+            var tens = 100;
+            var fives = 62;
+            var mockData = new Dictionary<Denomination, int>() {
+                { Denomination.One, ones },
+                { Denomination.Ten, tens },
+                { Denomination.Five, fives },
+            };
+
+            machine = new VendingMachine(mockData);            
+        }
+
+        #region Initialization
+
         [TestMethod]
         public void VendingMachine_InitializeWithNull_ValuesAreInitializedWithNoDenominations()
         {
-            var machine = new VendingMachine(null);
+            machine = new VendingMachine(null);
             Assert.IsNotNull(machine.Money);
             Assert.IsNotNull(machine.UserInputtedMoney);
             Assert.IsNotNull(machine.Money.DenominiationCounts);
@@ -23,16 +46,18 @@ namespace VendingMachineTests
         [TestMethod]
         public void VendingMachine_InitializeWithValues_ValuesAreInitialized()
         {
+            //Could use DefaultInitialization here, but we should make sure to test the values of Money to make sure they stick.
             var ones = 5;
             var tens = 100;
             var fives = 62;
             var mockData = new Dictionary<Denomination, int>() {
                 { Denomination.One, ones },
-                { Denomination.Ten, tens},
+                { Denomination.Ten, tens },
                 { Denomination.Five, fives },
             };
 
-            var machine = new VendingMachine(mockData);
+            machine = new VendingMachine(mockData);
+
             Assert.IsNotNull(machine.Money);
             Assert.IsNotNull(machine.UserInputtedMoney);
             Assert.IsNotNull(machine.Money.DenominiationCounts);
@@ -50,6 +75,95 @@ namespace VendingMachineTests
             Assert.AreEqual(tens, denominizations[Denomination.Ten]);
 
         }
-        
+
+        #endregion
+
+        #region Accept Money
+
+        [TestMethod]
+        public void VendingMachine_AcceptMoney_UnknownDenominization_MoneyIsAcceptedAndNewDenominizationIsInitialized()
+        {
+            //Setup
+            var unknownDenom = Denomination.Two;
+            DefaultInitialization();
+
+            //Make sure the denominization doesn't exist 
+            if (machine.Money.DenominiationCounts.ContainsKey(unknownDenom) || machine.UserInputtedMoney.DenominiationCounts.ContainsKey(unknownDenom))
+            {
+                Assert.Inconclusive("Test Initialization Failure. Was expecting Denominization.Two to be absent from initial list");
+            }
+
+            //Act
+            machine.AcceptMoney(unknownDenom);
+
+            //Test
+            Assert.IsTrue(machine.Money.DenominiationCounts.ContainsKey(unknownDenom)); 
+            Assert.IsTrue(machine.UserInputtedMoney.DenominiationCounts.ContainsKey(unknownDenom));
+            Assert.AreEqual(1, machine.UserInputtedMoney.DenominiationCounts[unknownDenom]);
+        }
+
+        [TestMethod]
+        public void VendingMachine_AcceptMoney_KnownDenominization_MoneyIsAccepted()
+        {
+            //Setup
+            var knownDenom = Denomination.Five;
+            DefaultInitialization();
+
+            //Make sure the denominization doesn't exist 
+            if (!(machine.Money.DenominiationCounts.ContainsKey(knownDenom)))
+            {
+                Assert.Inconclusive("Test Initialization Failure. Was expecting Denominization to be known from initial list");
+            }
+
+            //Act
+            machine.AcceptMoney(knownDenom);
+
+            //Test
+            Assert.IsTrue(machine.Money.DenominiationCounts.ContainsKey(knownDenom));
+            Assert.IsTrue(machine.UserInputtedMoney.DenominiationCounts.ContainsKey(knownDenom));
+            Assert.AreEqual(1, machine.UserInputtedMoney.DenominiationCounts[knownDenom]);
+        }
+
+        [TestMethod]
+        public void VendingMachine_AcceptMoney_AddMultipleCoins_CoinsAreAdded()
+        {
+            //Setup
+            DefaultInitialization();
+            
+            //Act
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Five);
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Ten);
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Two);
+            machine.AcceptMoney(Denomination.Five);
+            machine.AcceptMoney(Denomination.Ten);
+            machine.AcceptMoney(Denomination.One);
+
+
+            //Test
+            Assert.AreEqual(4, machine.UserInputtedMoney.DenominiationCounts[Denomination.One]);
+            Assert.AreEqual(1, machine.UserInputtedMoney.DenominiationCounts[Denomination.Two]);
+            Assert.AreEqual(2, machine.UserInputtedMoney.DenominiationCounts[Denomination.Five]);
+            Assert.AreEqual(2, machine.UserInputtedMoney.DenominiationCounts[Denomination.Ten]);            
+        }
+
+        [TestMethod]
+        public void VendingMachine_AcceptMoney_MachineMoneyCountsAreUnaffected()
+        {
+            //Setup
+            DefaultInitialization();
+            var oldMoney = new MoneyBag(new Dictionary<Denomination, int>(machine.Money.DenominiationCounts));
+
+            //Act
+            machine.AcceptMoney(Denomination.One);
+
+            //Test
+            Assert.AreEqual(oldMoney.DenominiationCounts[Denomination.One], machine.Money.DenominiationCounts[Denomination.One]);
+        }
+
+        #endregion
+
     }
 }

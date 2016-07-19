@@ -16,5 +16,25 @@ namespace Covarity
             Money = new MoneyBag(initialMoneyAmounts);
             UserInputtedMoney = new MoneyBag(null);
         }
+
+        public void AcceptMoney(Denomination d)
+        {
+            if (!Money.DenominiationCounts.ContainsKey(d))
+            {
+                Money.DenominiationCounts.Add(d, 0);
+            }
+            
+            if (!UserInputtedMoney.DenominiationCounts.ContainsKey(d))
+            {
+                UserInputtedMoney.DenominiationCounts.Add(d, 0);
+            }
+
+            UserInputtedMoney.DenominiationCounts[d]++;
+        }
+
+        public MoneyBag ReturnMoney()
+        {
+            return null;
+        }
     }
 }
