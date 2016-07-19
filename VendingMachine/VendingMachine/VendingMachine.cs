@@ -34,7 +34,19 @@ namespace Covarity
 
         public MoneyBag ReturnMoney()
         {
-            return null;
+            var ret = new MoneyBag(new Dictionary<Denomination, int>(UserInputtedMoney.DenominiationCounts));
+            ResetUserInputtedMoney();
+            return ret;
+        }
+
+        private void ResetUserInputtedMoney()
+        {
+            //Reset all values to 0
+            var keys = UserInputtedMoney.DenominiationCounts.Select(z => z.Key).ToArray();
+            foreach (var key in keys)
+            {
+                UserInputtedMoney.DenominiationCounts[key] = 0;
+            }
         }
     }
 }

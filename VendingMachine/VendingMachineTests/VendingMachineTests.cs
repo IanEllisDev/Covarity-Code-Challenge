@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Covarity;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VendingMachineTests
 {
@@ -163,6 +164,94 @@ namespace VendingMachineTests
             Assert.AreEqual(oldMoney.DenominiationCounts[Denomination.One], machine.Money.DenominiationCounts[Denomination.One]);
         }
 
+        #endregion
+
+        #region Return Money
+
+        [TestMethod]
+        public void VendingMachine_ReturnMoney_NoMoneyInserted_EmptyMoneyBagReturned()
+        {
+            //Setup
+            DefaultInitialization();
+            
+            //Act
+            var actual = machine.ReturnMoney();
+
+            //Test
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(0, actual.DenominiationCounts.Count);
+        }
+
+        [TestMethod]
+        public void VendingMachine_ReturnMoney_SingleDenominizationAdded_MoneyBagContainsInsteredDenominization()
+        {
+            //Setup
+            var denom = Denomination.Ten;
+            DefaultInitialization();
+            machine.AcceptMoney(denom);
+
+            //Act
+            var actual = machine.ReturnMoney();
+
+            //Test
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(1, actual.DenominiationCounts.Count);
+            Assert.AreEqual(1, actual.DenominiationCounts[denom]);
+        }
+
+
+        [TestMethod]
+        public void VendingMachine_ReturnMoney_MultipleDenominizationAdded_MoneyBagContainsInsteredDenominization()
+        {
+            //Setup
+            DefaultInitialization();
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Five);
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Ten);
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Two);
+            machine.AcceptMoney(Denomination.Five);
+            machine.AcceptMoney(Denomination.Ten);
+            machine.AcceptMoney(Denomination.One);
+
+            //Act
+            var actual = machine.ReturnMoney();
+
+            //Test
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(4, actual.DenominiationCounts.Count);
+
+            Assert.AreEqual(4, actual.DenominiationCounts[Denomination.One]);
+            Assert.AreEqual(1, actual.DenominiationCounts[Denomination.Two]);
+            Assert.AreEqual(2, actual.DenominiationCounts[Denomination.Five]);
+            Assert.AreEqual(2, actual.DenominiationCounts[Denomination.Ten]);
+        }
+
+        [TestMethod]
+        public void VendingMachine_ReturnMoney_UserInputtedMoneyIsResetToEmptyMoneyBag()
+        {
+            //Setup
+            DefaultInitialization();
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Five);
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Ten);
+            machine.AcceptMoney(Denomination.One);
+            machine.AcceptMoney(Denomination.Two);
+            machine.AcceptMoney(Denomination.Five);
+            machine.AcceptMoney(Denomination.Ten);
+            machine.AcceptMoney(Denomination.One);
+
+            //Act
+            machine.ReturnMoney();
+
+            //Test
+            Assert.IsNotNull(machine.UserInputtedMoney);
+            var nonZeroValues = machine.UserInputtedMoney.DenominiationCounts.Where(z => z.Value != 0);
+            Assert.AreEqual(0, nonZeroValues.Count());
+        }
+                
         #endregion
 
     }
