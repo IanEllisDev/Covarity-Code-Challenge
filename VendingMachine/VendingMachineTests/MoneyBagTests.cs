@@ -4,7 +4,7 @@ using Covarity;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace VendingMachineTests
+namespace CovarityTests
 {
     [TestClass]
     public class MoneyBagTests

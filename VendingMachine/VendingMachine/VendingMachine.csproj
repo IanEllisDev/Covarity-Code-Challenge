@@ -41,7 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Denomination.cs" />
+    <Compile Include="Exceptions\InvalidTrayItemException.cs" />
+    <Compile Include="Items\AppleItem.cs" />
+    <Compile Include="Items\BagOfChipsItem.cs" />
+    <Compile Include="Items\CookieItem.cs" />
+    <Compile Include="Items\ItemBase.cs" />
+    <Compile Include="Items\PeanutItem.cs" />
     <Compile Include="MoneyBag.cs" />
+    <Compile Include="Tray.cs" />
     <Compile Include="VendingMachine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
